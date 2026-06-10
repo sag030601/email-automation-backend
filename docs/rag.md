@@ -54,5 +54,5 @@ RAG_TOP_K=3
 
 
 
-vercel setup
+vercel setup------------
 https://resend.com/docs/knowledge-base/vercel

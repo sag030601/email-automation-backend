@@ -102,15 +102,15 @@ const authLimiter = rateLimit({
   validate: { xForwardedForHeader: false },
 })
 
-app.use('/api', limiter)
-app.use('/api/auth/login', authLimiter)
-app.use('/api/auth/register', authLimiter)
 
-app.use('/api/auth', authRoutes)
-app.use('/api/campaigns', campaignRoutes)
-app.use('/api/contacts', contactRoutes)
-app.use('/api/analytics', analyticsRoutes)
-app.use('/api/billing', billingRoutes)
+app.get('/', (_req, res) => {
+  res.json({
+    success: true,
+    service: 'Email Automation API',
+    status: 'running',
+  })
+})
+
 
 app.get('/health', (_req, res) => {
   res.json({
@@ -139,6 +139,22 @@ app.get('/api/health/db', async (_req, res) => {
     res.status(500).json({ status: 'error', database: 'unknown' })
   }
 })
+
+
+
+
+
+app.use('/api', limiter)
+app.use('/api/auth/login', authLimiter)
+app.use('/api/auth/register', authLimiter)
+
+app.use('/api/auth', authRoutes)
+app.use('/api/campaigns', campaignRoutes)
+app.use('/api/contacts', contactRoutes)
+app.use('/api/analytics', analyticsRoutes)
+app.use('/api/billing', billingRoutes)
+
+
 
 app.use((_req: Request, _res: Response, next: NextFunction) => {
   next(new AppError('Not Found', 404))

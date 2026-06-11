@@ -3,7 +3,7 @@ import dotenv from 'dotenv'
 import bcrypt from 'bcryptjs'
 import User from '../models/User.js'
 import Tenant from '../models/Tenant.js'
-import Campaign from '../models/Campaign.js'
+import Campaign, { type ICampaign } from '../models/Campaign.js'
 
 dotenv.config()
 
@@ -50,7 +50,19 @@ async function seed(): Promise<void> {
     console.log(`  ✓ Created user: ${user.email}`)
 
     console.log('\n📦 Creating demo campaigns...')
-    const campaigns = [
+    const campaigns: Array<{
+      tenantId: mongoose.Types.ObjectId
+      createdBy: mongoose.Types.ObjectId
+      name: string
+      subject: string
+      content: string
+      status: ICampaign['status']
+      recipients: ICampaign['recipients']
+      sentAt?: Date
+      scheduledAt?: Date
+      stats?: ICampaign['stats']
+      tags: string[]
+    }> = [
       {
         tenantId: tenant._id,
         createdBy: user._id,
@@ -73,6 +85,8 @@ async function seed(): Promise<void> {
           complained: 0,
           unsubscribed: 0,
           failed: 0,
+          delayed: 0,
+          suppressed: 0,
         },
         tags: ['welcome', 'onboarding'],
       },

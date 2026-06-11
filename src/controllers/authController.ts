@@ -1,6 +1,5 @@
 import { Request, Response } from 'express'
-import jwt from 'jsonwebtoken'
-import crypto from 'crypto'
+import jwt, { type SignOptions } from 'jsonwebtoken'
 import User from '../models/User.js'
 import Tenant from '../models/Tenant.js'
 import { AuthRequest } from '../middleware/auth.js'
@@ -8,16 +7,12 @@ import { isValidEmail, sanitizeEmail, validatePassword } from '../utils/validato
 import { createCustomer } from '../services/stripeService.js'
 import logger from '../utils/logger.js'
 
-const generateToken = (userId: string, tenantId: string): string => {
-  return jwt.sign(
-    { userId, tenantId },
-    process.env.JWT_SECRET || 'your-super-secret-jwt-key',
-    { expiresIn: process.env.JWT_EXPIRES_IN || '24h' }
-  )
-}
+const JWT_SECRET = process.env.JWT_SECRET || 'your-super-secret-jwt-key'
+const JWT_EXPIRES_IN = (process.env.JWT_EXPIRES_IN || '24h') as SignOptions['expiresIn']
 
-const generateRefreshToken = (): string => {
-  return crypto.randomBytes(40).toString('hex')
+const generateToken = (userId: string, tenantId: string): string => {
+  const options: SignOptions = { expiresIn: JWT_EXPIRES_IN }
+  return jwt.sign({ userId, tenantId }, JWT_SECRET, options)
 }
 
 export const register = async (req: Request, res: Response): Promise<void> => {

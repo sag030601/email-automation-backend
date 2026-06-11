@@ -10,6 +10,13 @@ export interface TenantRequest extends AuthRequest {
     plan: string
     emailsUsed: number
     emailsLimit: number
+    settings: {
+      timezone: string
+      defaultFromName: string
+      defaultFromEmail?: string
+      customDomain?: string
+      webhookUrl?: string
+    }
   }
 }
 
@@ -36,6 +43,7 @@ export const loadTenant = async (
       plan: tenant.plan,
       emailsUsed: tenant.emailsUsed,
       emailsLimit: tenant.emailsLimit,
+      settings: tenant.settings,
     }
 
     next()

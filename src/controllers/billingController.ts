@@ -74,6 +74,11 @@ export const createCheckout = async (req: TenantRequest, res: Response): Promise
       priceId
     )
 
+    if (!session?.url) {
+      res.status(503).json({ error: 'Checkout is unavailable. Stripe may not be configured.' })
+      return
+    }
+
     res.json({ url: session.url })
   } catch (error) {
     logger.error('Create checkout error:', error)
@@ -100,6 +105,11 @@ export const createPortal = async (req: TenantRequest, res: Response): Promise<v
     }
 
     const session = await createPortalSession(tenant.stripeCustomerId)
+
+    if (!session?.url) {
+      res.status(503).json({ error: 'Billing portal is unavailable. Stripe may not be configured.' })
+      return
+    }
 
     res.json({ url: session.url })
   } catch (error) {

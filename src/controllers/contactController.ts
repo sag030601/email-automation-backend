@@ -1,7 +1,7 @@
 import { Response } from 'express'
 import Contact from '../models/Contact.js'
 import { TenantRequest } from '../middleware/tenant.js'
-import { isValidObjectId } from '../utils/validators.js'
+import { isValidObjectId, parseRouteParam } from '../utils/validators.js'
 import logger from '../utils/logger.js'
 
 export const getContacts = async (req: TenantRequest, res: Response): Promise<void> => {
@@ -57,7 +57,7 @@ export const updateContact = async (req: TenantRequest, res: Response): Promise<
       return
     }
 
-    const { id } = req.params
+    const id = parseRouteParam(req.params.id)
     if (!isValidObjectId(id)) {
       res.status(400).json({ error: 'Invalid contact ID' })
       return
@@ -94,7 +94,7 @@ export const deleteContact = async (req: TenantRequest, res: Response): Promise<
       return
     }
 
-    const { id } = req.params
+    const id = parseRouteParam(req.params.id)
     if (!isValidObjectId(id)) {
       res.status(400).json({ error: 'Invalid contact ID' })
       return

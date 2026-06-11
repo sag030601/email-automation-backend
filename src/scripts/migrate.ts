@@ -1,4 +1,5 @@
 import mongoose from 'mongoose'
+import type { CreateIndexesOptions } from 'mongodb'
 import dotenv from 'dotenv'
 import User from '../models/User.js'
 import Tenant from '../models/Tenant.js'
@@ -13,7 +14,7 @@ interface IndexDefinition {
   model: mongoose.Model<unknown>
   indexes: Array<{
     fields: Record<string, 1 | -1 | 'text'>
-    options?: mongoose.IndexOptions
+    options?: CreateIndexesOptions
   }>
 }
 

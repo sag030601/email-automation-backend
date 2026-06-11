@@ -3,12 +3,14 @@ import Tenant from '../models/Tenant.js'
 import logger from '../utils/logger.js'
 
 const STRIPE_KEY = process.env.STRIPE_SECRET_KEY
-const isStripeConfigured = STRIPE_KEY && STRIPE_KEY !== 'sk_test_your_stripe_secret_key'
+const isStripeConfigured = Boolean(
+  STRIPE_KEY && STRIPE_KEY !== 'sk_test_your_stripe_secret_key'
+)
 
 let stripe: Stripe | null = null
-if (isStripeConfigured) {
+if (isStripeConfigured && STRIPE_KEY) {
   stripe = new Stripe(STRIPE_KEY, {
-    apiVersion: '2025-04-30.basil',
+    apiVersion: '2026-04-22.dahlia',
   })
 }
 
@@ -84,10 +86,15 @@ export const handleWebhook = async (
         else if (priceId === process.env.STRIPE_PRICE_ID_PRO) plan = 'pro'
         else if (priceId === process.env.STRIPE_PRICE_ID_ENTERPRISE) plan = 'enterprise'
 
+        const subscriptionItem = subscription.items.data[0]
         await Tenant.findByIdAndUpdate(tenant._id, {
           plan,
-          currentPeriodStart: new Date(subscription.current_period_start * 1000),
-          currentPeriodEnd: new Date(subscription.current_period_end * 1000),
+          ...(subscriptionItem?.current_period_start != null
+            ? { currentPeriodStart: new Date(subscriptionItem.current_period_start * 1000) }
+            : {}),
+          ...(subscriptionItem?.current_period_end != null
+            ? { currentPeriodEnd: new Date(subscriptionItem.current_period_end * 1000) }
+            : {}),
         })
         logger.info(`Subscription updated for tenant ${tenant._id}`)
       }

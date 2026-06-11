@@ -1,7 +1,7 @@
-import IORedis from 'ioredis'
+import { Redis } from 'ioredis'
 import logger from '../utils/logger.js'
 
-let redisClient: IORedis | null = null
+let redisClient: Redis | null = null
 let redisEnabled = false
 
 export const getRedisConfig = () => {
@@ -18,7 +18,7 @@ export const getRedisConfig = () => {
   }
 }
 
-export const initializeRedis = async (): Promise<IORedis | null> => {
+export const initializeRedis = async (): Promise<Redis | null> => {
   if (process.env.REDIS_ENABLED === 'false') {
     logger.info('Redis disabled via config')
     return null
@@ -29,7 +29,7 @@ export const initializeRedis = async (): Promise<IORedis | null> => {
   }
 
   try {
-    redisClient = new IORedis(getRedisConfig())
+    redisClient = new Redis(getRedisConfig())
 
     redisClient.on('error', () => {
       // Silently ignore Redis errors when not available
@@ -51,7 +51,7 @@ export const initializeRedis = async (): Promise<IORedis | null> => {
 
 export const isRedisEnabled = (): boolean => redisEnabled
 
-export const getRedisClient = (): IORedis | null => redisEnabled ? redisClient : null
+export const getRedisClient = (): Redis | null => redisEnabled ? redisClient : null
 
 export const closeRedis = async (): Promise<void> => {
   if (redisClient) {

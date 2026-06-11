@@ -40,6 +40,9 @@ RUN mkdir -p logs && chown -R nodejs:nodejs logs
 # Switch to non-root user
 USER nodejs
 
+ENV NODE_ENV=production
+ENV PORT=5000
+
 # Expose port
 EXPOSE 5000
 

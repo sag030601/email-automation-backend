@@ -2,7 +2,7 @@ import { Response } from 'express'
 import Campaign from '../models/Campaign.js'
 import Tenant from '../models/Tenant.js'
 import { TenantRequest } from '../middleware/tenant.js'
-import { isValidObjectId } from '../utils/validators.js'
+import { isValidObjectId, parseRouteParam } from '../utils/validators.js'
 import { addBulkEmailsToQueue, getQueueStats } from '../services/queueService.js'
 import logger from '../utils/logger.js'
 
@@ -61,7 +61,7 @@ export const getCampaign = async (req: TenantRequest, res: Response): Promise<vo
       return
     }
 
-    const { id } = req.params
+    const id = parseRouteParam(req.params.id)
     if (!isValidObjectId(id)) {
       res.status(400).json({ error: 'Invalid campaign ID' })
       return
@@ -165,7 +165,7 @@ export const updateCampaign = async (req: TenantRequest, res: Response): Promise
       return
     }
 
-    const { id } = req.params
+    const id = parseRouteParam(req.params.id)
     if (!isValidObjectId(id)) {
       res.status(400).json({ error: 'Invalid campaign ID' })
       return
@@ -248,7 +248,7 @@ export const deleteCampaign = async (req: TenantRequest, res: Response): Promise
       return
     }
 
-    const { id } = req.params
+    const id = parseRouteParam(req.params.id)
     if (!isValidObjectId(id)) {
       res.status(400).json({ error: 'Invalid campaign ID' })
       return
@@ -286,7 +286,7 @@ export const sendCampaign = async (req: TenantRequest, res: Response): Promise<v
       return
     }
 
-    const { id } = req.params
+    const id = parseRouteParam(req.params.id)
     if (!isValidObjectId(id)) {
       res.status(400).json({ error: 'Invalid campaign ID' })
       return
@@ -375,7 +375,7 @@ export const pauseCampaign = async (req: TenantRequest, res: Response): Promise<
       return
     }
 
-    const { id } = req.params
+    const id = parseRouteParam(req.params.id)
     
     const campaign = await Campaign.findOneAndUpdate(
       { _id: id, tenantId: req.user.tenantId, status: 'sending' },
@@ -403,7 +403,7 @@ export const duplicateCampaign = async (req: TenantRequest, res: Response): Prom
       return
     }
 
-    const { id } = req.params
+    const id = parseRouteParam(req.params.id)
     
     const original = await Campaign.findOne({
       _id: id,

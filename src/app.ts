@@ -16,8 +16,8 @@ import webhookRoutes from './routes/webhooks.js'
 import { errorHandler, AppError } from './middleware/errorHandler.js'
 import { requestLogger } from './middleware/requestLogger.js'
 import logger from './utils/logger.js'
-import { initializeRedis } from './config/redis.js'
-import { startEmailWorker } from './services/queueService.js'
+import { closeRedis, initializeRedis } from './config/redis.js'
+import { startEmailWorker, stopEmailWorker } from './services/queueService.js'
 
 dotenv.config()
 
@@ -174,6 +174,8 @@ const gracefulShutdown = async (signal: string) => {
   logger.info(`${signal} received. Starting graceful shutdown...`)
   
   try {
+    await stopEmailWorker()
+    await closeRedis()
     await mongoose.connection.close()
     logger.info('MongoDB connection closed')
     process.exit(0)
@@ -182,6 +184,15 @@ const gracefulShutdown = async (signal: string) => {
     process.exit(1)
   }
 }
+
+process.on('unhandledRejection', (reason) => {
+  logger.error('Unhandled promise rejection:', reason)
+})
+
+process.on('uncaughtException', (error) => {
+  logger.error('Uncaught exception:', error)
+  process.exit(1)
+})
 
 process.on('SIGTERM', () => gracefulShutdown('SIGTERM'))
 process.on('SIGINT', () => gracefulShutdown('SIGINT'))

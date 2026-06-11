@@ -1,5 +1,4 @@
 import { Queue, Worker, Job, QueueEvents } from 'bullmq'
-import IORedis from 'ioredis'
 import Campaign from '../models/Campaign.js'
 import Tenant from '../models/Tenant.js'
 import EmailEvent from '../models/EmailEvent.js'
@@ -10,8 +9,6 @@ import { getRedisConfig, isRedisEnabled } from '../config/redis.js'
 let emailQueue: Queue | null = null
 let emailWorker: Worker | null = null
 let queueEvents: QueueEvents | null = null
-let connection: IORedis | null = null
-let queueInitialized = false
 
 export interface EmailJobData {
   campaignId: string
@@ -29,31 +26,6 @@ export interface EmailJobData {
 export interface CampaignJobData {
   campaignId: string
   tenantId: string
-}
-
-const createConnection = (): IORedis | null => {
-  if (!isRedisEnabled()) {
-    return null
-  }
-  const config = getRedisConfig()
-  const conn = new IORedis({
-    ...config,
-    maxRetriesPerRequest: null,
-  })
-  conn.on('error', () => {
-    // Silently handle connection errors
-  })
-  return conn
-}
-
-const getConnection = (): IORedis | null => {
-  if (!isRedisEnabled()) {
-    return null
-  }
-  if (!connection) {
-    connection = createConnection()
-  }
-  return connection
 }
 
 export const getEmailQueue = (): Queue | null => {
@@ -289,10 +261,6 @@ export const stopEmailWorker = async (): Promise<void> => {
   if (emailQueue) {
     await emailQueue.close()
     emailQueue = null
-  }
-  if (connection) {
-    await connection.quit()
-    connection = null
   }
   logger.info('Email worker stopped')
 }

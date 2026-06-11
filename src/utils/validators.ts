@@ -3,6 +3,11 @@ export const isValidEmail = (email: string): boolean => {
   return emailRegex.test(email)
 }
 
+export const parseRouteParam = (param: string | string[] | undefined): string => {
+  if (Array.isArray(param)) return param[0] ?? ''
+  return param ?? ''
+}
+
 export const isValidObjectId = (id: string): boolean => {
   const objectIdRegex = /^[0-9a-fA-F]{24}$/
   return objectIdRegex.test(id)
